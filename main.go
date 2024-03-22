@@ -13,8 +13,6 @@ import (
 )
 
 const dburi = "mongodb://localhost:27017"
-const dbname = "hotel-reservation"
-const userCollection = "users"
 
 var config = fiber.Config{
 
