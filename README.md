@@ -5,7 +5,7 @@
 - users -> book room from an hotel
 - admins -> check reservations and bookings
 - authentication and authorization -> JWT tokens
-- hotels -> CRUD API -> JSON
+- Hotels -> CRUD API -> JSON
 - rooms -> CRUD API -> JSON
 - scripts -> database management -> seeding, migration
 
