@@ -14,7 +14,7 @@ const userCollection = "users"
 type UserStore interface {
 	GetUserById(context.Context, string) (*types.User, error)
 	GetUsers(context.Context) ([]*types.User, error)
-	CreateUsert(context.Context, *types.User) (*types.User, error)
+	CreateUser(context.Context, *types.User) (*types.User, error)
 }
 
 type MongoUserStore struct {
@@ -52,4 +52,13 @@ func (s *MongoUserStore) GetUserById(ctx context.Context, id string) (*types.Use
 		return nil, err
 	}
 	return &user, nil
+}
+
+func (s *MongoUserStore) CreateUser(ctx context.Context, user *types.User) (*types.User, error) {
+	res, err := s.collection.InsertOne(ctx, user)
+	if err != nil {
+		return nil, err
+	}
+	user.ID = res.InsertedID.(primitive.ObjectID).Hex()
+	return user, nil
 }

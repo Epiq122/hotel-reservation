@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/epiq122/hotel-reservation/db"
+	"github.com/epiq122/hotel-reservation/types"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -34,4 +35,20 @@ func (h *UserHandler) HandleGetUsers(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(users)
+}
+
+func (h *UserHandler) HandleCreateUser(c *fiber.Ctx) error {
+	var params types.CreateUserParams
+	if err := c.BodyParser(&params); err != nil {
+		return err
+	}
+	user, err := types.NewUserFromParams(params)
+	if err != nil {
+		return err
+	}
+	insertedUser, err := h.userStore.CreateUser(c.Context(), user)
+	if err != nil {
+		return err
+	}
+	return c.JSON(insertedUser)
 }
