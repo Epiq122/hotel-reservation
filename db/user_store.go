@@ -15,6 +15,7 @@ type UserStore interface {
 	GetUserById(context.Context, string) (*types.User, error)
 	GetUsers(context.Context) ([]*types.User, error)
 	CreateUser(context.Context, *types.User) (*types.User, error)
+	DeleteUser(context.Context, string) error
 }
 
 type MongoUserStore struct {
@@ -61,4 +62,17 @@ func (s *MongoUserStore) CreateUser(ctx context.Context, user *types.User) (*typ
 	}
 	user.ID = res.InsertedID.(primitive.ObjectID).Hex()
 	return user, nil
+}
+
+func (s *MongoUserStore) DeleteUser(ctx context.Context, id string) error {
+	oid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+	// TODO: Mabe check if we did not delete a user and log it
+	_, err = s.collection.DeleteOne(ctx, bson.M{"_id": oid})
+	if err != nil {
+		return err
+	}
+	return nil
 }
