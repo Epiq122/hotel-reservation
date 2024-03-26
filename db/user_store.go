@@ -34,22 +34,10 @@ func (s *MongoUserStore) GetUsers(ctx context.Context) ([]*types.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer cur.Close(ctx)
-
 	var users []*types.User
-	for cur.Next(ctx) {
-		var user types.User
-		err := cur.Decode(&user)
-		if err != nil {
-			return nil, err
-		}
-		users = append(users, &user)
+	if err := cur.All(ctx, &users); err != nil {
+		return []*types.User{}, nil
 	}
-
-	if err := cur.Err(); err != nil {
-		return nil, err
-	}
-
 	return users, nil
 }
 
