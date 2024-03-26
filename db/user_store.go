@@ -16,6 +16,7 @@ type UserStore interface {
 	GetUsers(context.Context) ([]*types.User, error)
 	CreateUser(context.Context, *types.User) (*types.User, error)
 	DeleteUser(context.Context, string) error
+	UpdateUser(ctx context.Context, string, filter, update bson.M) error
 }
 
 type MongoUserStore struct {
@@ -71,6 +72,15 @@ func (s *MongoUserStore) DeleteUser(ctx context.Context, id string) error {
 	}
 	// TODO: Mabe check if we did not delete a user and log it
 	_, err = s.collection.DeleteOne(ctx, bson.M{"_id": oid})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *MongoUserStore) UpdateUser(ctx context.Context, filter, update, values bson.M) error {
+	updateDoc := bson.D{{Key: "$set", Value: update}}
+	_, err := s.collection.UpdateOne(ctx, filter, updateDoc)
 	if err != nil {
 		return err
 	}
