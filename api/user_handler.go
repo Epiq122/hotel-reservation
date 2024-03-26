@@ -1,10 +1,7 @@
 package api
 
 import (
-	"context"
-
 	"github.com/epiq122/hotel-reservation/db"
-	"github.com/epiq122/hotel-reservation/types"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -20,11 +17,10 @@ func NewUserHandler(userStore db.UserStore) *UserHandler {
 
 func (h *UserHandler) HandleGetUser(c *fiber.Ctx) error {
 	var (
-		id  = c.Params("id")
-		ctx = context.Background()
+		id = c.Params("id")
 	)
 
-	user, err := h.userStore.GetUserById(ctx, id)
+	user, err := h.userStore.GetUserById(c.Context(), id)
 	if err != nil {
 		return err
 	}
@@ -32,9 +28,10 @@ func (h *UserHandler) HandleGetUser(c *fiber.Ctx) error {
 }
 
 func (h *UserHandler) HandleGetUsers(c *fiber.Ctx) error {
-	u := types.User{
-		FirstName: "Rob",
-		LastName:  "Admin",
+	users, err := h.userStore.GetUsers(c.Context())
+	if err != nil {
+		return err
 	}
-	return c.JSON(u)
+
+	return c.JSON(users)
 }
