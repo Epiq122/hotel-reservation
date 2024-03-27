@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http/httptest"
 	"testing"
@@ -59,8 +58,23 @@ func TestCreateUser(t *testing.T) {
 	b, _ := json.Marshal(params)
 
 	req := httptest.NewRequest("POST", "/", bytes.NewReader(b))
-	req.Header.Set("Content-Type", "application/json")
-	resp, _ := app.Test(req)
-	fmt.Println(resp.Status)
+	req.Header.Add("Content-Type", "application/json")
+	resp, err := app.Test(req)
+	if err != nil {
+		t.Error(err)
+	}
+
+	var user types.User
+	json.NewDecoder(resp.Body).Decode(&user)
+
+	if len(user.ID) == 0 {
+		t.Error("User ID is empty")
+	}
+	if len(user.EncryptedPassword) > 0 {
+		t.Error("Encrypted password is not to be included in the response")
+	}
+	if user.Email != params.Email || user.FirstName != params.FirstName || user.LastName != params.LastName {
+		t.Errorf("User does not match expected. Got: %#v, Expected Email: %s, First Name: %s, Last Name: %s", user, params.Email, params.FirstName, params.LastName)
+	}
 
 }
