@@ -18,12 +18,14 @@ type RoomStore interface {
 type MongoRoomStore struct {
 	client     *mongo.Client
 	collection *mongo.Collection
+	HotelStore
 }
 
-func NewMongoRoomStore(client *mongo.Client, dbname string) *MongoRoomStore {
+func NewMongoRoomStore(client *mongo.Client, hotelStore HotelStore) *MongoRoomStore {
 	return &MongoRoomStore{
 		client:     client,
-		collection: client.Database(dbname).Collection(roomCollection),
+		collection: client.Database(DBNAME).Collection(roomCollection),
+		HotelStore: hotelStore,
 	}
 }
 
@@ -37,7 +39,7 @@ func (s *MongoRoomStore) CreateRoom(ctx context.Context, room *types.Room) (*typ
 	// update ther hotel with the new room id
 	filter := bson.M{"_id": room.HotelID}
 	update := bson.M{"$push": bson.M{"rooms": room.ID}}
-	if err := s.client.Database("hotel").Collection("hotels").FindOneAndUpdate(ctx, filter, update).Err(); err != nil {
+	if err := s.HotelStore.UpdateHotel(ctx, filter, update); err != nil {
 		return nil, err
 	}
 	return room, nil
