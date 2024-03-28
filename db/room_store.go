@@ -12,7 +12,7 @@ import (
 const roomCollection = "rooms"
 
 type RoomStore interface {
-	CreateHotel(ctx context.Context, Room *types.Room) (*types.Room, error)
+	CreateRoom(ctx context.Context, Room *types.Room) (*types.Room, error)
 }
 
 type MongoRoomStore struct {

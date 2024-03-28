@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	"github.com/epiq122/hotel-reservation/db"
@@ -12,22 +11,17 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func main() {
-	ctx := context.Background()
+var (
+	client     *mongo.Client
+	hotelStore db.HotelStore
+	roomStore  db.RoomStore
+	ctx        = context.Background()
+)
 
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(db.DBURI))
-	if err != nil {
-		log.Fatal(err)
-	}
-	if err := client.Database(db.DBNAME).Drop(ctx); err != nil {
-		log.Fatal(err)
-	}
-	hotelStore := db.NewMongoHotelStore(client)
-	roomStore := db.NewMongoRoomStore(client, hotelStore)
-
+func seedHotel(name, location string) {
 	hotel := types.Hotel{
-		Name:     "Hotel California",
-		Location: "USA",
+		Name:     name,
+		Location: location,
 		Rooms:    []primitive.ObjectID{},
 	}
 
@@ -45,6 +39,7 @@ func main() {
 			BasePrice: 300.00,
 		},
 	}
+
 	insertedHotel, err := hotelStore.CreateHotel(ctx, &hotel)
 	if err != nil {
 		log.Fatal(err)
@@ -52,12 +47,31 @@ func main() {
 
 	for _, room := range rooms {
 		room.HotelID = insertedHotel.ID
-		insertedRoom, err := roomStore.CreateRoom(ctx, &room)
+		_, err := roomStore.CreateRoom(ctx, &room)
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println(insertedRoom)
 
 	}
 
+}
+
+func main() {
+	seedHotel("Hilton", "New York")
+	seedHotel("Marriott", "San Francisco")
+	seedHotel("Sheraton", "Los Angeles")
+
+}
+
+func init() {
+	var err error
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(db.DBURI))
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err := client.Database(db.DBNAME).Drop(ctx); err != nil {
+		log.Fatal(err)
+	}
+	hotelStore = db.NewMongoHotelStore(client)
+	roomStore = db.NewMongoRoomStore(client, hotelStore) // Pass hotelStore
 }
