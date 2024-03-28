@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/epiq122/hotel-reservation/types"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -34,6 +35,10 @@ func (s *MongoRoomStore) CreateRoom(ctx context.Context, room *types.Room) (*typ
 	room.ID = res.InsertedID.(primitive.ObjectID)
 
 	// update ther hotel with the new room id
-
+	filter := bson.M{"_id": room.HotelID}
+	update := bson.M{"$push": bson.M{"rooms": room.ID}}
+	if err := s.client.Database("hotel").Collection("hotels").FindOneAndUpdate(ctx, filter, update).Err(); err != nil {
+		return nil, err
+	}
 	return room, nil
 }
