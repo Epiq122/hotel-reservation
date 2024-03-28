@@ -12,6 +12,7 @@ import (
 const hotelCollection = "hotels"
 
 type HotelStore interface {
+	GetHotels(context.Context, bson.M) ([]*types.Hotel, error)
 	CreateHotel(ctx context.Context, hotel *types.Hotel) (*types.Hotel, error)
 	UpdateHotel(context.Context, bson.M, bson.M) error
 }
@@ -40,5 +41,18 @@ func (s *MongoHotelStore) CreateHotel(ctx context.Context, hotel *types.Hotel) (
 func (s *MongoHotelStore) UpdateHotel(ctx context.Context, filter bson.M, update bson.M) error {
 	_, err := s.collection.UpdateOne(ctx, filter, update)
 	return err
+
+}
+
+func (s *MongoHotelStore) GetHotels(ctx context.Context, filter bson.M) ([]*types.Hotel, error) {
+	resp, err := s.collection.Find(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	var hotels []*types.Hotel
+	if err := resp.All(ctx, &hotels); err != nil {
+		return []*types.Hotel{}, nil
+	}
+	return hotels, nil
 
 }
