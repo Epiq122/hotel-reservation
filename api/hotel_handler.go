@@ -17,20 +17,18 @@ func NewHotelHandler(hs db.HotelStore, rs db.RoomStore) *HotelHandler {
 	}
 }
 
-type HotelQueryParams struct {
-	Rooms  bool
-	Rating int
-}
-
 func (h *HotelHandler) HandleGetHotels(c *fiber.Ctx) error {
-	var queryParams HotelQueryParams
-	if err := c.QueryParser(&queryParams); err != nil {
-		return err
-	}
-
 	hotels, err := h.hotelStore.GetHotels(c.Context(), nil)
 	if err != nil {
 		return err
 	}
 	return c.JSON(hotels)
+
+}
+
+func (h *HotelHandler) HandleGetRooms(c *fiber.Ctx) error {
+	id := c.Params("id")
+
+	return nil
+
 }
