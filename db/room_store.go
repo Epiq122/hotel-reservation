@@ -13,6 +13,7 @@ const roomCollection = "rooms"
 
 type RoomStore interface {
 	CreateRoom(ctx context.Context, Room *types.Room) (*types.Room, error)
+	GetRooms(context.Context, bson.M) ([]*types.Room, error)
 }
 
 type MongoRoomStore struct {
@@ -43,4 +44,16 @@ func (s *MongoRoomStore) CreateRoom(ctx context.Context, room *types.Room) (*typ
 		return nil, err
 	}
 	return room, nil
+}
+
+func (s *MongoRoomStore) GetRooms(ctx context.Context, filter bson.M) ([]*types.Room, error) {
+	resp, err := s.collection.Find(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	var rooms []*types.Room
+	if err := resp.All(ctx, &rooms); err != nil {
+		return nil, err
+	}
+	return rooms, nil
 }
