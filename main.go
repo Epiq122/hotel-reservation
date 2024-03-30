@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/epiq122/hotel-reservation/api"
+	"github.com/epiq122/hotel-reservation/api/middleware"
 	"github.com/epiq122/hotel-reservation/db"
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -44,7 +45,7 @@ func main() {
 
 		hotelHandler = api.NewHotelHandler(store)
 		app          = fiber.New(config)
-		apiv1        = app.Group("/api/v1")
+		apiv1        = app.Group("/api/v1", middleware.JWTAuthentication)
 	)
 
 	// users routes
