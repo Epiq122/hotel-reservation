@@ -2,7 +2,6 @@ package api
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/epiq122/hotel-reservation/db"
 	"github.com/epiq122/hotel-reservation/types"
@@ -20,22 +19,6 @@ func NewUserHandler(userStore db.UserStore) *UserHandler {
 	return &UserHandler{
 		userStore: userStore,
 	}
-}
-
-type AuthParams struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-
-func (h *UserHandler) HandleAuthenticate(c *fiber.Ctx) error {
-	var params AuthParams
-	if err := c.BodyParser(&params); err != nil {
-		return err
-
-	}
-	fmt.Println(params)
-	return nil
-
 }
 
 func (h *UserHandler) HandleGetUser(c *fiber.Ctx) error {
