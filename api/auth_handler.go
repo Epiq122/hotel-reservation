@@ -5,9 +5,9 @@ import (
 	"fmt"
 
 	"github.com/epiq122/hotel-reservation/db"
+	"github.com/epiq122/hotel-reservation/types"
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/mongo"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type AuthHandler struct {
@@ -38,8 +38,7 @@ func (h *AuthHandler) HandleAuthenticate(c *fiber.Ctx) error {
 		}
 		return err
 	}
-	err = bcrypt.CompareHashAndPassword([]byte(user.EncryptedPassword), []byte(params.Password))
-	if err != nil {
+	if !types.IsValidPassword(user.EncryptedPassword, params.Password) {
 		return fmt.Errorf("invalid credentials")
 	}
 	fmt.Println("user authenticated")
